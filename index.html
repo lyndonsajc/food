@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Family Food Picker</title>
+  <style>
+    :root {
+      --bg: #fff8ef;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #f97316;
+      --accent2: #16a34a;
+      --line: #fed7aa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #fff7ed, #fef3c7 45%, #ffffff);
+      color: var(--ink);
+    }
+    header {
+      padding: 28px 18px 18px;
+      text-align: center;
+    }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 48px); }
+    .subtitle { color: var(--muted); margin-top: 8px; font-size: 15px; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
+    .panel {
+      background: rgba(255,255,255,.88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 14px 35px rgba(124, 45, 18, .10);
+      padding: 16px;
+      margin-bottom: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(8px);
+    }
+    .filter-group { margin: 12px 0; }
+    .filter-title { font-weight: 700; margin-bottom: 8px; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+    button {
+      border: 1px solid #fdba74;
+      background: white;
+      color: #7c2d12;
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .15s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(249,115,22,.18); }
+    button.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .search {
+      flex: 1;
+      min-width: 220px;
+      border: 1px solid #fdba74;
+      border-radius: 999px;
+      padding: 11px 14px;
+      font-size: 15px;
+      outline: none;
+      background: #fff;
+    }
+    .stats { color: var(--muted); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid #fde68a;
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.06);
+    }
+    .food { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .stall { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 12px; padding: 5px 8px; border-radius: 999px; background: #ffedd5; color: #9a3412; font-weight: 700; }
+    .tag.green { background: #dcfce7; color: #166534; }
+    .tag.blue { background: #dbeafe; color: #1e40af; }
+    .tag.gray { background: #f3f4f6; color: #374151; }
+    .empty {
+      text-align: center;
+      background: white;
+      border: 1px dashed #fb923c;
+      border-radius: 18px;
+      padding: 28px;
+      color: var(--muted);
+      display: none;
+    }
+    .note {
+      margin: 18px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🍜 Family Food Picker</h1>
+    <div class="subtitle">Choose by cuisine, price, location, and type of food.</div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="top-actions">
+        <input id="search" class="search" placeholder="Search food, stall, cuisine, location..." />
+        <button id="randomBtn">Pick for us 🎲</button>
+        <button id="resetBtn">Reset</button>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div id="filters"></div>
+    </section>
+
+    <div class="note">
+      Price guide: $ = cheap, $$ = moderate, $$$ = expensive. Prices are indicative family-planning labels, not exact menu prices.
+    </div>
+
+    <section id="grid" class="grid"></section>
+    <section id="empty" class="empty">No match. Try removing one filter.</section>
+  </main>
+
+  <script>
+    const foodData = [
+      {name:'Sin Heng Kee Porridge', stall:'Sin Heng Kee Porridge', location:'Block 608 Coffeeshop', cuisine:'Chinese', category:'Porridge', price:'$'},
+      {name:'Nasi Lemak Ayam Taliwang', stall:'Nasi Lemak Ayam Taliwang', location:'Block 608 Coffeeshop', cuisine:'Malay / Indonesian', category:'Rice', price:'$$'},
+      {name:'Zi Char Seafood', stall:'Meet & Eat @ 608', location:'Block 608 Coffeeshop', cuisine:'Chinese', category:'Zi Char', price:'$$$'},
+      {name:'Waffles and Gelato', stall:'Waff Waff!', location:'Block 608 Coffeeshop', cuisine:'Dessert', category:'Dessert / Snack', price:'$$'},
+      {name:'Fruit Tea / Milk Tea', stall:'Waff Waff!', location:'Block 608 Coffeeshop', cuisine:'Drinks', category:'Drinks', price:'$'},
+
+      {name:'Teochew Fish Soup / Fish Porridge', stall:'Teochew Fish Porridge Da Pai Dang', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Soup / Porridge', price:'$$'},
+      {name:'Rojak', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Local', category:'Snack', price:'$'},
+      {name:'Chicken Rice', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Rice', price:'$'},
+      {name:'Cai Fan / Economy Rice', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Rice', price:'$'},
+      {name:'Muslim Food', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Malay / Indian Muslim', category:'Rice / Noodles', price:'$'},
+      {name:'Western Chicken Chop', stall:'Chops & Sear', location:'Block 631 Coffeeshop', cuisine:'Western', category:'Western', price:'$$'},
+      {name:'Zi Char', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Zi Char', price:'$$'},
+
+      {name:'Roasted Meat Rice', stall:'Ho Bee Roasted Food', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Rice', price:'$'},
+      {name:'Hainanese Boneless Chicken Rice', stall:'Sing Soon Lee', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Rice', price:'$'},
+      {name:'Fishball Minced Meat Noodles', stall:'Song Heng', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Noodles', price:'$'},
+      {name:'Porridge', stall:'Xiang Ji Porridge', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Porridge', price:'$'},
+      {name:'Fried Hokkien Prawn Mee', stall:'Sumo Fried Hokkien Prawn Mee', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Noodles', price:'$'},
+      {name:'Nasi Lemak', stall:'Nasi Lemak@67', location:'Block 628 Hawker Centre', cuisine:'Malay', category:'Rice', price:'$'},
+      {name:'Fish Soup', stall:'Imperial Fish Soup', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Soup', price:'$'},
+      {name:'Vegetarian Bee Hoon / Rice', stall:'Foy Yin Vegetarian Food', location:'Block 628 Hawker Centre', cuisine:'Vegetarian', category:'Vegetarian', price:'$'},
+      {name:'Malay Family Dishes', stall:'Rosnah’s Family Kitchen', location:'Block 628 Hawker Centre', cuisine:'Malay', category:'Rice / Dishes', price:'$'},
+      {name:'Japanese Rice Bowl', stall:'Konomi Zen', location:'Block 628 Hawker Centre', cuisine:'Japanese', category:'Rice Bowl', price:'$$'},
+
+      {name:'Japanese Chirashi / Don', stall:'Omoté', location:'Thomson Plaza', cuisine:'Japanese', category:'Rice Bowl', price:'$$$'},
+      {name:'Korean Meals', stall:'Wonderful Bapsang', location:'Thomson Plaza', cuisine:'Korean', category:'Rice / Noodles', price:'$$'},
+      {name:'Japanese Donburi', stall:'Hokkaido-ya', location:'Thomson Plaza', cuisine:'Japanese', category:'Rice Bowl', price:'$$'},
+      {name:'Hong Kong Cafe Food', stall:'Nan Yang Dao', location:'Thomson Plaza', cuisine:'Hong Kong / Malaysian', category:'Cafe / Noodles / Rice', price:'$$'},
+      {name:'Ayam Penyet', stall:'BISTRO BOX By Uncle Penyet', location:'Thomson Plaza', cuisine:'Indonesian', category:'Rice', price:'$$'},
+      {name:'Chinese Restaurant Dishes', stall:'Peach Garden', location:'Thomson Plaza', cuisine:'Chinese', category:'Restaurant', price:'$$$'},
+      {name:'Hotpot', stall:'Shi Li Fang', location:'Thomson Plaza', cuisine:'Chinese', category:'Hotpot', price:'$$$'},
+      {name:'Pasta', stall:'42 Pasta is the Answer', location:'Thomson Plaza', cuisine:'Western / Italian', category:'Pasta', price:'$$'},
+      {name:'Tonkatsu / Ramen', stall:'Hajime Tonkatsu & Ramen', location:'Thomson Plaza', cuisine:'Japanese', category:'Noodles / Cutlet', price:'$$'},
+      {name:'Japanese Collagen Hotpot', stall:'Tsukada Nojo', location:'Thomson Plaza', cuisine:'Japanese', category:'Hotpot', price:'$$$'},
+      {name:'Vegan Meals', stall:'iVegan', location:'Thomson Plaza', cuisine:'Vegetarian', category:'Vegetarian', price:'$$'},
+      {name:'Sushi', stall:'Sushiro', location:'Thomson Plaza', cuisine:'Japanese', category:'Sushi', price:'$$'},
+      {name:'Fujian / Chinese Food', stall:'San Ren Xing', location:'Thomson Plaza', cuisine:'Chinese', category:'Restaurant', price:'$$'},
+      {name:'Western Cafe Meals', stall:'The Grumpy Bear', location:'Thomson Plaza', cuisine:'Western', category:'Cafe / Western', price:'$$'},
+      {name:'Cafe / Bar Bites', stall:'Shift Bar & Kitchen by CommonFolks', location:'Thomson Plaza', cuisine:'Western / Cafe', category:'Cafe / Snack', price:'$$'},
+      {name:'Steak / Western Grill', stall:'Astons Specialities', location:'Thomson Plaza', cuisine:'Western', category:'Western', price:'$$'},
+      {name:'Burger', stall:'Burger King', location:'Thomson Plaza', cuisine:'Western', category:'Fast Food', price:'$'},
+      {name:'Kueh / Cakes', stall:'Bengawan Solo', location:'Thomson Plaza', cuisine:'Dessert', category:'Dessert / Snack', price:'$'},
+
+      {name:'A-One Claypot / Porridge', stall:'A-One Signature', location:'AMK Hub', cuisine:'Chinese', category:'Porridge / Claypot', price:'$$'},
+      {name:'Root Beer Float / Burgers', stall:'A&W', location:'AMK Hub', cuisine:'Western', category:'Fast Food', price:'$'},
+      {name:'Ramen', stall:'Ajisen Tanjiro', location:'AMK Hub', cuisine:'Japanese', category:'Noodles', price:'$$'},
+      {name:'Pretzels', stall:'Auntie Anne’s', location:'AMK Hub', cuisine:'Snack', category:'Dessert / Snack', price:'$'},
+      {name:'Chinese BBQ Skewers', stall:'BBQ Box', location:'AMK Hub', cuisine:'Chinese', category:'Grill / Skewers', price:'$$'},
+      {name:'Cookies', stall:'Famous Amos', location:'AMK Hub', cuisine:'Dessert', category:'Dessert / Snack', price:'$'},
+      {name:'Bakkwa', stall:'Fragrance Bakkwa', location:'AMK Hub', cuisine:'Chinese', category:'Snack', price:'$$'},
+      {name:'Indian Meals', stall:'LADYFINGER', location:'AMK Hub', cuisine:'Indian', category:'Rice / Dishes', price:'$$'},
+      {name:'Hunan Dishes', stall:'Xiang Xiang Hunan Cuisine', location:'AMK Hub', cuisine:'Chinese', category:'Restaurant', price:'$$'},
+      {name:'Kopi and Toast', stall:'Kopi & Tarts', location:'AMK Hub', cuisine:'Local', category:'Breakfast / Snack', price:'$'},
+      {name:'Potato Snacks', stall:'Potato Corner', location:'AMK Hub', cuisine:'Snack', category:'Snack', price:'$'},
+      {name:'Burger', stall:'MOS Burger', location:'AMK Hub', cuisine:'Japanese / Western', category:'Fast Food', price:'$'},
+      {name:'Soy Milk / Pancake', stall:'Mr Bean', location:'AMK Hub', cuisine:'Local', category:'Drinks / Snack', price:'$'},
+      {name:'Bak Kut Teh', stall:'New Manlee Bak Kut Teh', location:'AMK Hub', cuisine:'Chinese', category:'Soup / Rice', price:'$$'},
+      {name:'Curry Puff', stall:'Old Chang Kee', location:'AMK Hub', cuisine:'Local', category:'Snack', price:'$'},
+      {name:'Sizzling Hot Plate', stall:'Pepper Lunch', location:'AMK Hub', cuisine:'Japanese / Western', category:'Hotplate', price:'$$'},
+      {name:'Prata', stall:'Prata Raya', location:'AMK Hub', cuisine:'Indian Muslim', category:'Prata / Breakfast', price:'$'},
+      {name:'Rice Roll', stall:'QQ Rice', location:'AMK Hub', cuisine:'Taiwanese / Healthy', category:'Rice / Snack', price:'$'},
+      {name:'Western Student Meals', stall:'Eighteen Chefs / Scarlet Café', location:'AMK Hub', cuisine:'Western', category:'Western / Pasta', price:'$$'}
+    ];
+
+    const filterConfig = [
+      {key:'location', title:'Location'},
+      {key:'cuisine', title:'Cuisine'},
+      {key:'price', title:'Price'},
+      {key:'category', title:'Category'}
+    ];
+
+    const selected = { location:'All', cuisine:'All', price:'All', category:'All' };
+    const filtersEl = document.getElementById('filters');
+    const gridEl = document.getElementById('grid');
+    const emptyEl = document.getElementById('empty');
+    const statsEl = document.getElementById('stats');
+    const searchEl = document.getElementById('search');
+
+    function uniq(key) {
+      const values = [...new Set(foodData.map(x => x[key]))].sort((a,b) => a.localeCompare(b));
+      if (key === 'price') return ['$', '$$', '$$$'];
+      return values;
+    }
+
+    function drawFilters() {
+      filtersEl.innerHTML = filterConfig.map(cfg => `
+        <div class="filter-group">
+          <div class="filter-title">${cfg.title}</div>
+          <div class="buttons" data-key="${cfg.key}">
+            <button class="active" data-value="All">All</button>
+            ${uniq(cfg.key).map(v => `<button data-value="${v}">${v}</button>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      filtersEl.addEventListener('click', e => {
+        if (!e.target.matches('button')) return;
+        const group = e.target.closest('.buttons');
+        const key = group.dataset.key;
+        selected[key] = e.target.dataset.value;
+        group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn === e.target));
+        render();
+      });
+    }
+
+    function getFiltered() {
+      const q = searchEl.value.trim().toLowerCase();
+      return foodData.filter(item => {
+        const filterOk = Object.entries(selected).every(([key, val]) => val === 'All' || item[key] === val);
+        const searchOk = !q || Object.values(item).join(' ').toLowerCase().includes(q);
+        return filterOk && searchOk;
+      });
+    }
+
+    function render() {
+      const list = getFiltered();
+      statsEl.textContent = `${list.length} choice${list.length === 1 ? '' : 's'}`;
+      emptyEl.style.display = list.length ? 'none' : 'block';
+      gridEl.innerHTML = list.map(item => `
+        <article class="card">
+          <div class="food">${item.name}</div>
+          <div class="stall">${item.stall}</div>
+          <div class="tags">
+            <span class="tag blue">${item.location}</span>
+            <span class="tag">${item.cuisine}</span>
+            <span class="tag green">${item.price}</span>
+            <span class="tag gray">${item.category}</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      Object.keys(selected).forEach(k => selected[k] = 'All');
+      searchEl.value = '';
+      document.querySelectorAll('.buttons').forEach(group => {
+        group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn.dataset.value === 'All'));
+      });
+      render();
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      const list = getFiltered();
+      if (!list.length) return;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      gridEl.innerHTML = `
+        <article class="card" style="grid-column:1/-1; border:2px solid #f97316;">
+          <div class="food">Tonight’s pick: ${pick.name}</div>
+          <div class="stall">${pick.stall}</div>
+          <div class="tags">
+            <span class="tag blue">${pick.location}</span>
+            <span class="tag">${pick.cuisine}</span>
+            <span class="tag green">${pick.price}</span>
+            <span class="tag gray">${pick.category}</span>
+          </div>
+        </article>` + gridEl.innerHTML;
+    });
+
+    searchEl.addEventListener('input', render);
+    drawFilters();
+    render();
+  </script>
+</
