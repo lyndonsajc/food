@@ -15,8 +15,12 @@
       --line: #fed7aa;
     }
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
+      min-height: 100%;
+      overflow-y: auto;
+    }
+    body {
       font-family: Arial, Helvetica, sans-serif;
       background: linear-gradient(180deg, #fff7ed, #fef3c7 45%, #ffffff);
       color: var(--ink);
@@ -29,16 +33,19 @@
     .subtitle { color: var(--muted); margin-top: 8px; font-size: 15px; }
     .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
     .panel {
-      background: rgba(255,255,255,.88);
+      background: rgba(255,255,255,.96);
       border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: 0 14px 35px rgba(124, 45, 18, .10);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 10px 24px rgba(124, 45, 18, .08);
       padding: 16px;
-      margin-bottom: 18px;
       position: sticky;
       top: 0;
-      z-index: 5;
+      z-index: 10;
       backdrop-filter: blur(8px);
+      min-height: 42vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
     }
     .filter-group { margin: 12px 0; }
     .filter-title { font-weight: 700; margin-bottom: 8px; }
@@ -67,10 +74,21 @@
       background: #fff;
     }
     .stats { color: var(--muted); font-weight: 700; }
+    .results-section {
+      min-height: 50vh;
+      background: rgba(255,255,255,.82);
+      border: 1px solid #fde68a;
+      border-top: none;
+      border-radius: 0 0 22px 22px;
+      padding: 18px;
+      box-shadow: 0 16px 30px rgba(0,0,0,.05);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 14px;
+      align-content: start;
     }
     .card {
       background: var(--card);
@@ -124,8 +142,10 @@
       Price guide: $ = cheap, $$ = moderate, $$$ = expensive. Prices are indicative family-planning labels, not exact menu prices.
     </div>
 
-    <section id="grid" class="grid"></section>
-    <section id="empty" class="empty">No match. Try removing one filter.</section>
+    <section class="results-section">
+      <section id="grid" class="grid"></section>
+      <section id="empty" class="empty">No match. Try removing one filter.</section>
+    </section>
   </main>
 
   <script>
@@ -293,4 +313,5 @@
     drawFilters();
     render();
   </script>
-</
+</body>
+</html>
