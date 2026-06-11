@@ -3,315 +3,4800 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Family Food Picker</title>
+  <title>AMK Family Food Picker - Real Names</title>
   <style>
     :root {
-      --bg: #fff8ef;
-      --card: #ffffff;
-      --ink: #1f2937;
-      --muted: #6b7280;
-      --accent: #f97316;
-      --accent2: #16a34a;
-      --line: #fed7aa;
+      --bg:#fff7ed; --card:#fff; --ink:#1f2937; --muted:#6b7280;
+      --orange:#f97316; --line:#fed7aa; --soft:#ffedd5;
     }
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      overflow-y: auto;
-    }
+    * { box-sizing:border-box; }
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #fff7ed, #fef3c7 45%, #ffffff);
-      color: var(--ink);
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#fff7ed,#fef3c7 45%,#fff);
+      color:var(--ink);
+      height:100vh;
+      overflow:hidden;
     }
     header {
-      padding: 28px 18px 18px;
-      text-align: center;
+      height:9vh;
+      min-height:70px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:10px 16px;
     }
-    h1 { margin: 0; font-size: clamp(28px, 4vw, 48px); }
-    .subtitle { color: var(--muted); margin-top: 8px; font-size: 15px; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; }
-    .panel {
-      background: rgba(255,255,255,.96);
-      border: 1px solid var(--line);
-      border-radius: 22px 22px 0 0;
-      box-shadow: 0 10px 24px rgba(124, 45, 18, .08);
-      padding: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(8px);
-      min-height: 42vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
+    h1 { margin:0; font-size:clamp(24px,4vw,42px); }
+    .sub { font-size:12px; color:var(--muted); margin-top:4px; }
+    .app {
+      height:91vh;
+      max-width:1320px;
+      margin:0 auto;
+      padding:0 14px 14px;
+      display:grid;
+      grid-template-rows:43% 57%;
+      gap:10px;
     }
-    .filter-group { margin: 12px 0; }
-    .filter-title { font-weight: 700; margin-bottom: 8px; }
-    .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+    .choices,.results {
+      background:rgba(255,255,255,.95);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:0 12px 28px rgba(124,45,18,.10);
+      overflow:auto;
+    }
+    .choices { padding:14px; }
+    .results { padding:16px; }
+    .topbar {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    input {
+      flex:1;
+      min-width:210px;
+      border:1px solid #fdba74;
+      border-radius:999px;
+      padding:11px 14px;
+      font-size:15px;
+      outline:none;
+    }
     button {
-      border: 1px solid #fdba74;
-      background: white;
-      color: #7c2d12;
-      padding: 9px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: .15s ease;
+      border:1px solid #fdba74;
+      background:#fff;
+      color:#7c2d12;
+      padding:9px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
     }
-    button:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(249,115,22,.18); }
-    button.active { background: var(--accent); color: white; border-color: var(--accent); }
-    .top-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-    .search {
-      flex: 1;
-      min-width: 220px;
-      border: 1px solid #fdba74;
-      border-radius: 999px;
-      padding: 11px 14px;
-      font-size: 15px;
-      outline: none;
-      background: #fff;
+    button:hover { box-shadow:0 6px 14px rgba(249,115,22,.18); transform:translateY(-1px); }
+    button.active { background:var(--orange); color:#fff; border-color:var(--orange); }
+    .filter-group { margin:10px 0; }
+    .filter-title { font-weight:900; margin-bottom:6px; }
+    .buttons { display:flex; gap:7px; flex-wrap:wrap; }
+    .stats {
+      font-weight:900;
+      color:#9a3412;
+      background:#ffedd5;
+      padding:8px 10px;
+      border-radius:999px;
     }
-    .stats { color: var(--muted); font-weight: 700; }
-    .results-section {
-      min-height: 50vh;
-      background: rgba(255,255,255,.82);
-      border: 1px solid #fde68a;
-      border-top: none;
-      border-radius: 0 0 22px 22px;
-      padding: 18px;
-      box-shadow: 0 16px 30px rgba(0,0,0,.05);
-    }
-
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 14px;
-      align-content: start;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+      gap:12px;
     }
     .card {
-      background: var(--card);
-      border: 1px solid #fde68a;
-      border-radius: 20px;
-      padding: 15px;
-      box-shadow: 0 10px 22px rgba(0,0,0,.06);
+      background:var(--card);
+      border:1px solid #fde68a;
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 8px 18px rgba(0,0,0,.05);
     }
-    .food { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
-    .stall { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag { font-size: 12px; padding: 5px 8px; border-radius: 999px; background: #ffedd5; color: #9a3412; font-weight: 700; }
-    .tag.green { background: #dcfce7; color: #166534; }
-    .tag.blue { background: #dbeafe; color: #1e40af; }
-    .tag.gray { background: #f3f4f6; color: #374151; }
+    .pick { border:3px solid var(--orange); background:#fff7ed; grid-column:1/-1; }
+    .name { font-size:18px; font-weight:900; margin-bottom:5px; }
+    .food { font-size:15px; font-weight:800; color:#7c2d12; margin-bottom:6px; }
+    .stall { font-size:13px; color:var(--muted); margin-bottom:10px; line-height:1.35; }
+    .tags { display:flex; gap:6px; flex-wrap:wrap; }
+    .tag {
+      font-size:12px;
+      padding:5px 8px;
+      border-radius:999px;
+      background:var(--soft);
+      color:#9a3412;
+      font-weight:800;
+    }
+    .green { background:#dcfce7; color:#166534; }
+    .blue { background:#dbeafe; color:#1e40af; }
+    .gray { background:#f3f4f6; color:#374151; }
+    .purple { background:#ede9fe; color:#5b21b6; }
+    .yellow { background:#fef9c3; color:#854d0e; }
+    .favbtn { margin-top:10px; border-radius:12px; padding:7px 10px; }
+    .favbtn.on { background:#f97316; color:white; }
     .empty {
-      text-align: center;
-      background: white;
-      border: 1px dashed #fb923c;
-      border-radius: 18px;
-      padding: 28px;
-      color: var(--muted);
-      display: none;
+      display:none;
+      text-align:center;
+      color:var(--muted);
+      border:1px dashed #fb923c;
+      border-radius:18px;
+      padding:28px;
+      background:white;
     }
-    .note {
-      margin: 18px 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
+    .note { font-size:12px; color:var(--muted); line-height:1.4; margin-top:8px; }
+    @media(max-width:760px) {
+      body { overflow:auto; height:auto; }
+      .app { height:auto; display:block; }
+      .choices,.results { height:auto; max-height:none; margin-bottom:12px; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🍜 Family Food Picker</h1>
-    <div class="subtitle">Choose by cuisine, price, location, and type of food.</div>
-  </header>
+<header>
+  <div>
+    <h1>🍜 AMK Family Food Picker</h1>
+    <div class="sub">Real-name version: 374 entries including hawkers, coffeeshops, food courts, fast food, restaurants, cafés, AMK, Lentor and Thomson.</div>
+  </div>
+</header>
 
-  <main class="wrap">
-    <section class="panel">
-      <div class="top-actions">
-        <input id="search" class="search" placeholder="Search food, stall, cuisine, location..." />
-        <button id="randomBtn">Pick for us 🎲</button>
-        <button id="resetBtn">Reset</button>
-        <div class="stats" id="stats"></div>
-      </div>
-      <div id="filters"></div>
-    </section>
-
-    <div class="note">
-      Price guide: $ = cheap, $$ = moderate, $$$ = expensive. Prices are indicative family-planning labels, not exact menu prices.
+<main class="app">
+  <section class="choices">
+    <div class="topbar">
+      <input id="search" placeholder="Search food, stall, location, cuisine..." />
+      <button id="randomBtn">Pick for us 🎲</button>
+      <button id="favOnlyBtn">Favourites ❤️</button>
+      <button id="voteBtn">Family Vote Mode</button>
+      <button id="resetBtn">Reset</button>
+      <span class="stats" id="stats">0 choices</span>
     </div>
+    <div id="filters"></div>
+    <div class="note">
+      Price guide: $ cheap, $$ moderate, $$$ expensive. Food-court entries are named by food-court/operator plus stall category when individual stall names are not publicly listed.
+    </div>
+  </section>
 
-    <section class="results-section">
-      <section id="grid" class="grid"></section>
-      <section id="empty" class="empty">No match. Try removing one filter.</section>
-    </section>
-  </main>
+  <section class="results">
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty">No match. Remove one filter or press Reset.</div>
+  </section>
+</main>
 
-  <script>
-    const foodData = [
-      {name:'Sin Heng Kee Porridge', stall:'Sin Heng Kee Porridge', location:'Block 608 Coffeeshop', cuisine:'Chinese', category:'Porridge', price:'$'},
-      {name:'Nasi Lemak Ayam Taliwang', stall:'Nasi Lemak Ayam Taliwang', location:'Block 608 Coffeeshop', cuisine:'Malay / Indonesian', category:'Rice', price:'$$'},
-      {name:'Zi Char Seafood', stall:'Meet & Eat @ 608', location:'Block 608 Coffeeshop', cuisine:'Chinese', category:'Zi Char', price:'$$$'},
-      {name:'Waffles and Gelato', stall:'Waff Waff!', location:'Block 608 Coffeeshop', cuisine:'Dessert', category:'Dessert / Snack', price:'$$'},
-      {name:'Fruit Tea / Milk Tea', stall:'Waff Waff!', location:'Block 608 Coffeeshop', cuisine:'Drinks', category:'Drinks', price:'$'},
+<script>
+const foodData = [
+  {
+    "name": "Sin Heng Kee Porridge",
+    "food": "Signature Porridge",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sin Heng Kee Porridge",
+    "food": "Century Egg Porridge",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sin Heng Kee Porridge",
+    "food": "Sliced Fish Porridge",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak Ayam Taliwang",
+    "food": "Ayam Taliwang Nasi Lemak",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Malay / Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak Ayam Taliwang",
+    "food": "Ayam Balado Nasi Lemak",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Malay / Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak Ayam Taliwang",
+    "food": "Chicken Cutlet Nasi Lemak",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Malay / Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Meet & Eat @ 608 Zi Char",
+    "food": "Hor Fun",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Zi Char",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Meet & Eat @ 608 Zi Char",
+    "food": "Fried Rice",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Zi Char",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Meet & Eat @ 608 Zi Char",
+    "food": "Sambal Kang Kong",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Zi Char",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Meet & Eat @ 608 Zi Char",
+    "food": "Sweet and Sour Pork",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Zi Char",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Waff Waff!",
+    "food": "Waffles",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Dessert",
+    "category": "Dessert / Snack",
+    "meal": "Tea / Dessert",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Waff Waff!",
+    "food": "Gelato",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Dessert",
+    "category": "Dessert / Snack",
+    "meal": "Tea / Dessert",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Waff Waff!",
+    "food": "Milk Tea",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Dessert",
+    "category": "Drinks",
+    "meal": "Tea / Dessert",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Waff Waff!",
+    "food": "Fruit Tea",
+    "location": "Block 608 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Dessert",
+    "category": "Drinks",
+    "meal": "Tea / Dessert",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Teochew Fish Porridge Da Pai Dang",
+    "food": "Fish Soup",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Teochew Fish Porridge Da Pai Dang",
+    "food": "Fish Porridge",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Teochew Fish Porridge Da Pai Dang",
+    "food": "Sliced Fish Bee Hoon",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Soup / Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chops & Sear",
+    "food": "Chicken Chop",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chops & Sear",
+    "food": "Fish and Chips",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chops & Sear",
+    "food": "Pork Chop",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chops & Sear",
+    "food": "Chicken Cutlet",
+    "location": "Block 631 Coffeeshop",
+    "area": "Home Nearby",
+    "type": "Coffeeshop",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ho Bee Roasted Food",
+    "food": "Roasted Duck Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ho Bee Roasted Food",
+    "food": "Char Siew Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ho Bee Roasted Food",
+    "food": "Roasted Pork Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sing Soon Lee Chicken Rice",
+    "food": "Hainanese Boneless Chicken Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sing Soon Lee Chicken Rice",
+    "food": "Chicken Thigh Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sing Soon Lee Chicken Rice",
+    "food": "Roasted Chicken Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Song Heng Fishball Minced Meat Noodles",
+    "food": "Fishball Noodles",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Song Heng Fishball Minced Meat Noodles",
+    "food": "Bak Chor Mee",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Song Heng Fishball Minced Meat Noodles",
+    "food": "Mee Pok Dry",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Ji Porridge",
+    "food": "Pork Porridge",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Ji Porridge",
+    "food": "Chicken Porridge",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Ji Porridge",
+    "food": "Century Egg Porridge",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sumo Fried Hokkien Prawn Mee",
+    "food": "Fried Hokkien Prawn Mee",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sumo Fried Hokkien Prawn Mee",
+    "food": "Fried Oyster Omelette",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Fried Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak@67",
+    "food": "Nasi Lemak",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak@67",
+    "food": "Chicken Wing Nasi Lemak",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nasi Lemak@67",
+    "food": "Fish Fillet Nasi Lemak",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Imperial Fish Soup",
+    "food": "Fish Soup",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Imperial Fish Soup",
+    "food": "Fried Fish Soup",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Imperial Fish Soup",
+    "food": "Seafood Soup",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Foy Yin Vegetarian Food",
+    "food": "Vegetarian Bee Hoon",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Foy Yin Vegetarian Food",
+    "food": "Vegetarian Rice",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Foy Yin Vegetarian Food",
+    "food": "Vegetarian Noodles",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Konomi Zen",
+    "food": "Japanese Rice Bowl",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Konomi Zen",
+    "food": "Karaage Don",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Konomi Zen",
+    "food": "Teriyaki Chicken Don",
+    "location": "Block 628 Food Centre",
+    "area": "AMK 628",
+    "type": "Hawker",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pin Xiang Yuan Mushroom & Minced Meat Noodle",
+    "food": "Mushroom Minced Meat Noodle",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pin Xiang Yuan Mushroom & Minced Meat Noodle",
+    "food": "Fishball Mee Sua",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pin Xiang Yuan Mushroom & Minced Meat Noodle",
+    "food": "Fuzhou Meatball Noodles",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Uncle Bao Carrot Cake",
+    "food": "Black Carrot Cake",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Fried Food / Snack",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Uncle Bao Carrot Cake",
+    "food": "White Carrot Cake",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Fried Food / Snack",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "3 Sisters Prawn Noodle",
+    "food": "Prawn Noodle Soup",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "3 Sisters Prawn Noodle",
+    "food": "Prawn Noodle Dry",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "3 Sisters Prawn Noodle",
+    "food": "Fried Hokkien Mee",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jin Song Wanton Noodle",
+    "food": "Wanton Noodle",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jin Song Wanton Noodle",
+    "food": "Dumpling Noodle",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jin Song Wanton Noodle",
+    "food": "Mushroom Chicken Feet Noodle",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Oh HK Style Cheong Fun • Porridge",
+    "food": "Preserved Egg Minced Meat Porridge",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Oh HK Style Cheong Fun • Porridge",
+    "food": "HK-style Cheong Fun",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Chee Cheong Fun",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Oh HK Style Cheong Fun • Porridge",
+    "food": "Egg Cheong Fun",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Chee Cheong Fun",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Zhen Xin Vegetarian",
+    "food": "Vegetarian Bee Hoon",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Zhen Xin Vegetarian",
+    "food": "Vegetarian Laksa",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Zhen Xin Vegetarian",
+    "food": "Vegetarian Kway Chap",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ang Mo Kio 453 Wanton Mee",
+    "food": "Old-school Wanton Mee",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ang Mo Kio 453 Wanton Mee",
+    "food": "Dumpling Noodle",
+    "location": "Mayflower Market & Food Centre",
+    "area": "Mayflower",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Han Jiang Fish Soup",
+    "food": "Sliced Fish Soup",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Han Jiang Fish Soup",
+    "food": "Fish Porridge",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Han Jiang Fish Soup",
+    "food": "Seafood Soup",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "33 Vegetarian Food",
+    "food": "Vegetarian Chicken Rice Set",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "33 Vegetarian Food",
+    "food": "Vegetarian Chicken Curry Rice",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "33 Vegetarian Food",
+    "food": "Vegetarian Burger with Fries",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bedok 511 BBQ Chicken Wing",
+    "food": "BBQ Chicken Wing",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bedok 511 BBQ Chicken Wing",
+    "food": "Satay",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Soon Lee Heng Satay",
+    "food": "Chicken Satay",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Malay / Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Soon Lee Heng Satay",
+    "food": "Mutton Satay",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Malay / Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Soon Lee Heng Satay",
+    "food": "Ketupat Satay Set",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Malay / Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wang Ji Hainanese Chicken Rice",
+    "food": "Chicken Rice",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wang Ji Hainanese Chicken Rice",
+    "food": "Chicken Thigh Rice",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wang Ji Hainanese Chicken Rice",
+    "food": "Chicken Feet",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Side Dish",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hup Seng Huat Wanton Mee",
+    "food": "Wanton Noodle",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hup Seng Huat Wanton Mee",
+    "food": "Mushroom Chicken Feet Noodle",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hup Seng Huat Wanton Mee",
+    "food": "Mushroom Veg Hor Fun",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yummy Western",
+    "food": "Chicken Cutlet Rice",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yummy Western",
+    "food": "Black Pepper Pork Chop",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yummy Western",
+    "food": "Lamb Chop",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yummy Western",
+    "food": "Beef Steak",
+    "location": "409 AMK Market & Food Centre",
+    "area": "AMK Ave 10 / 409",
+    "type": "Hawker",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yong Xin 永薪",
+    "food": "Famous Noodle",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yong Xin 永薪",
+    "food": "Minced Meat Noodles",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yong Xin 永薪",
+    "food": "Fishball Noodle",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ang Mo Kio Loh Mee Laksa",
+    "food": "Lor Mee",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ang Mo Kio Loh Mee Laksa",
+    "food": "Laksa",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bin Fen Economic Bee Hoon",
+    "food": "Economic Bee Hoon",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese / Malay",
+    "category": "Breakfast / Snack",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bin Fen Economic Bee Hoon",
+    "food": "Glutinous Rice",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese / Malay",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bin Fen Economic Bee Hoon",
+    "food": "Nasi Lemak Set",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese / Malay",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Cai Ji Fried Fish Soup",
+    "food": "Fried Fish Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Cai Ji Fried Fish Soup",
+    "food": "Sliced Fish Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Cai Ji Fried Fish Soup",
+    "food": "Red Grouper Fish Head Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Rahim Muslim Food",
+    "food": "Mee Rebus",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Malay / Muslim",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Rahim Muslim Food",
+    "food": "Mee Soto",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Malay / Muslim",
+    "category": "Noodles / Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Rahim Muslim Food",
+    "food": "Satay",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Malay / Muslim",
+    "category": "BBQ / Skewers",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Lu Ge Wanton Noodle",
+    "food": "Wanton Noodle",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Lu Ge Wanton Noodle",
+    "food": "Dumpling Noodle",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Lu Ge Wanton Noodle",
+    "food": "Dumpling Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "96 Kwai Luck Cooked Food",
+    "food": "Mee Siam",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese / Local",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "96 Kwai Luck Cooked Food",
+    "food": "Local Breakfast Noodles",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese / Local",
+    "category": "Breakfast / Snack",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bai Jia Yuan Ban Mian",
+    "food": "Ban Mian",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bai Jia Yuan Ban Mian",
+    "food": "You Mian",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bai Jia Yuan Ban Mian",
+    "food": "Herbal Soup Noodles",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jia Hao Porridge",
+    "food": "Pork Porridge",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jia Hao Porridge",
+    "food": "Sliced Pork Porridge",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Jia Hao Porridge",
+    "food": "Pig Liver Porridge",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Porridge",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "453 Fish Soup",
+    "food": "Fish Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "453 Fish Soup",
+    "food": "Sliced Fish Soup",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "453 Fish Soup",
+    "food": "Fish Bee Hoon",
+    "location": "Chong Boon Market & Food Centre",
+    "area": "Chong Boon",
+    "type": "Hawker",
+    "cuisine": "Chinese",
+    "category": "Soup / Noodles",
+    "meal": "Breakfast / Lunch",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "A&W",
+    "food": "Coney Dog",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "A&W",
+    "food": "Root Beer Float",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Drinks / Dessert",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "A&W",
+    "food": "Chicken Waffle",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "MOS Burger",
+    "food": "MOS Cheeseburger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Japanese / Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "MOS Burger",
+    "food": "Teriyaki Chicken Burger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Japanese / Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "MOS Burger",
+    "food": "Rice Burger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Japanese / Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Big Mac",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Filet-O-Fish",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "McSpicy",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Breakfast Muffin",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Breakfast",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Original Recipe Chicken",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Zinger Burger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Cheese Fries",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Subway Sandwich",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Wrap",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Salad Bowl",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Healthy",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pepper Lunch",
+    "food": "Beef Pepper Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Hotplate",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pepper Lunch",
+    "food": "Salmon Pepper Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Hotplate",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Pepper Lunch",
+    "food": "Chicken Pepper Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Hotplate",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ajisen Tanjiro",
+    "food": "Ramen",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Noodles / Ramen",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ajisen Tanjiro",
+    "food": "Gyoza",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Dumplings",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ajisen Tanjiro",
+    "food": "Donburi",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kei Kaisendon",
+    "food": "Kaisendon",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl / Seafood",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kei Kaisendon",
+    "food": "Salmon Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kei Kaisendon",
+    "food": "Mentaiyaki Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BBQ Box",
+    "food": "Chinese BBQ Skewers",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BBQ Box",
+    "food": "Grilled Fish",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "BBQ / Seafood",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BBQ Box",
+    "food": "Mala Skewers",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "BBQ / Skewers",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "LADYFINGER",
+    "food": "Indian Set Meal",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Indian",
+    "category": "Rice / Dishes",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "LADYFINGER",
+    "food": "Biryani",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Indian",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "LADYFINGER",
+    "food": "Curry Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Indian",
+    "category": "Rice / Dishes",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Xiang Hunan Cuisine",
+    "food": "Hunan Stir-fry",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Restaurant / Spicy Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Xiang Hunan Cuisine",
+    "food": "Spicy Fish",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Restaurant / Spicy Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xiang Xiang Hunan Cuisine",
+    "food": "Hunan Rice Set",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Old Chang Kee",
+    "food": "Curry Puff",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Old Chang Kee",
+    "food": "Chicken Wing",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Old Chang Kee",
+    "food": "Fishball Stick",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Mr Bean",
+    "food": "Soy Milk",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Drinks",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Mr Bean",
+    "food": "Pancake",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Mr Bean",
+    "food": "Soya Ice Cream",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Local",
+    "category": "Dessert",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Potato Corner",
+    "food": "Flavoured Fries",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Snack",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Potato Corner",
+    "food": "Mega Fries",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Snack",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kopi & Tarts",
+    "food": "Kopi",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Local",
+    "category": "Drinks",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kopi & Tarts",
+    "food": "Egg Tart",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Local",
+    "category": "Dessert / Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kopi & Tarts",
+    "food": "Toast Set",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Local",
+    "category": "Breakfast / Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Dunkin’",
+    "food": "Donuts",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Dessert / Cafe",
+    "category": "Dessert / Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Dunkin’",
+    "food": "Coffee",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Snack / Takeaway",
+    "cuisine": "Dessert / Cafe",
+    "category": "Drinks",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Chicken Rice Stall",
+    "food": "Chicken Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Chicken Rice Stall",
+    "food": "Roasted Chicken Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Ban Mian Stall",
+    "food": "Ban Mian",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Ban Mian Stall",
+    "food": "You Mian",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Fish Soup Stall",
+    "food": "Fish Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Fish Soup Stall",
+    "food": "Fried Fish Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup / Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Dry",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Malay Food Stall",
+    "food": "Nasi Lemak",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Malay Food Stall",
+    "food": "Mee Rebus",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Western Food Stall",
+    "food": "Chicken Chop",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Western Food Stall",
+    "food": "Fish and Chips",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Japanese Stall",
+    "food": "Teriyaki Chicken Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Japanese Stall",
+    "food": "Karaage Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Dessert Stall",
+    "food": "Ice Kachang",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Kopitiam @ AMK Hub - Dessert Stall",
+    "food": "Chendol",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Chicken Rice Stall",
+    "food": "Chicken Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Chicken Rice Stall",
+    "food": "Roasted Chicken Rice",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Ban Mian Stall",
+    "food": "Ban Mian",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Ban Mian Stall",
+    "food": "You Mian",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Fish Soup Stall",
+    "food": "Fish Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Fish Soup Stall",
+    "food": "Fried Fish Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Soup",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup / Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Dry",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Malay Food Stall",
+    "food": "Nasi Lemak",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Malay Food Stall",
+    "food": "Mee Rebus",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Western Food Stall",
+    "food": "Chicken Chop",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Western Food Stall",
+    "food": "Fish and Chips",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Japanese Stall",
+    "food": "Teriyaki Chicken Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Japanese Stall",
+    "food": "Karaage Don",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Dessert Stall",
+    "food": "Ice Kachang",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Malaysia Boleh! @ AMK Hub - Dessert Stall",
+    "food": "Chendol",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Omoté",
+    "food": "Chirashi Don",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl / Sushi",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Omoté",
+    "food": "Salmon Don",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Omoté",
+    "food": "Sushi Rolls",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Sushi",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wonderful Bapsang",
+    "food": "Bibimbap",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Korean",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wonderful Bapsang",
+    "food": "Kimchi Stew",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Korean",
+    "category": "Soup / Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Wonderful Bapsang",
+    "food": "Korean Fried Chicken",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Korean",
+    "category": "Fried Chicken",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hokkaido-ya",
+    "food": "Donburi",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hokkaido-ya",
+    "food": "Karaage Don",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hokkaido-ya",
+    "food": "Salmon Mentai Don",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nan Yang Dao",
+    "food": "Hong Kong Noodles",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Hong Kong / Malaysian",
+    "category": "Cafe / Noodles / Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nan Yang Dao",
+    "food": "Toast Set",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Hong Kong / Malaysian",
+    "category": "Breakfast / Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nan Yang Dao",
+    "food": "Nasi Lemak",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Hong Kong / Malaysian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BISTRO BOX By Uncle Penyet",
+    "food": "Ayam Penyet",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BISTRO BOX By Uncle Penyet",
+    "food": "Ikan Penyet",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "BISTRO BOX By Uncle Penyet",
+    "food": "Indonesian Rice Set",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indonesian",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Peach Garden",
+    "food": "Dim Sum",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Chinese Restaurant",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Peach Garden",
+    "food": "Roast Meat",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Chinese Restaurant",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Peach Garden",
+    "food": "Seafood Dishes",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Chinese Restaurant",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shi Li Fang",
+    "food": "Hotpot Set",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Hotpot",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shi Li Fang",
+    "food": "Meat Platter",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Hotpot",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shi Li Fang",
+    "food": "Vegetable Platter",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Hotpot",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "42 Pasta is the Answer",
+    "food": "Carbonara",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western / Italian",
+    "category": "Pasta",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "42 Pasta is the Answer",
+    "food": "Aglio Olio",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western / Italian",
+    "category": "Pasta",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "42 Pasta is the Answer",
+    "food": "Tomato Pasta",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western / Italian",
+    "category": "Pasta",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hajime Tonkatsu & Ramen",
+    "food": "Tonkatsu Set",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Ramen / Cutlet",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hajime Tonkatsu & Ramen",
+    "food": "Ramen",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Noodles / Ramen",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Hajime Tonkatsu & Ramen",
+    "food": "Katsu Don",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Tsukada Nojo",
+    "food": "Bijin Nabe",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Hotpot",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Tsukada Nojo",
+    "food": "Chicken Collagen Hotpot",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Hotpot",
+    "meal": "Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "iVegan",
+    "food": "Vegan Rice Bowl",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "iVegan",
+    "food": "Vegan Noodles",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "iVegan",
+    "food": "Plant-based Meal",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Vegetarian",
+    "category": "Vegetarian",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushiro",
+    "food": "Conveyor Belt Sushi",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Sushi",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushiro",
+    "food": "Salmon Sushi",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Sushi",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushiro",
+    "food": "Udon",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "San Ren Xing",
+    "food": "Fujian Heng Hwa Noodles",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "San Ren Xing",
+    "food": "Chinese Restaurant Dishes",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Restaurant",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "San Ren Xing",
+    "food": "Rice Set",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Grumpy Bear",
+    "food": "Chicken Chop",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Grumpy Bear",
+    "food": "Pasta",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Western",
+    "category": "Pasta",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Grumpy Bear",
+    "food": "Cafe Brunch",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Western",
+    "category": "Cafe / Brunch",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shift Bar & Kitchen by CommonFolks",
+    "food": "Cafe Bites",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Cafe / Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shift Bar & Kitchen by CommonFolks",
+    "food": "Western Mains",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Shift Bar & Kitchen by CommonFolks",
+    "food": "Coffee",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Drinks",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Astons Specialities",
+    "food": "Steak",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western",
+    "category": "Steak / Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Astons Specialities",
+    "food": "Chicken Chop",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Astons Specialities",
+    "food": "Fish and Chips",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Casual",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Whopper",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Chicken Burger",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Fries",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bengawan Solo",
+    "food": "Kueh",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Snack / Takeaway",
+    "cuisine": "Dessert",
+    "category": "Kueh / Cakes",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bengawan Solo",
+    "food": "Pandan Cake",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Snack / Takeaway",
+    "cuisine": "Dessert",
+    "category": "Kueh / Cakes",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bengawan Solo",
+    "food": "Traditional Cakes",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Snack / Takeaway",
+    "cuisine": "Dessert",
+    "category": "Dessert / Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Sandwich",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Wrap",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Starbucks",
+    "food": "Coffee",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Cafe / Drinks",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Starbucks",
+    "food": "Cake",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Dessert / Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Starbucks",
+    "food": "Sandwich",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushi Tei",
+    "food": "Sushi",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Sushi",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushi Tei",
+    "food": "Udon",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Sushi Tei",
+    "food": "Donburi",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Swensen’s",
+    "food": "Ice Cream",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Western",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Swensen’s",
+    "food": "Fish and Chips",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Swensen’s",
+    "food": "Baked Rice",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Western",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Coriander Cafe",
+    "food": "Fish Head Curry",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indian / Chinese",
+    "category": "Curry",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Coriander Cafe",
+    "food": "Assam Fish",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indian / Chinese",
+    "category": "Curry",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "The Coriander Cafe",
+    "food": "Zi Char Dishes",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Indian / Chinese",
+    "category": "Zi Char",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Tingkat PeraMakan",
+    "food": "Peranakan Set Meal",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Peranakan",
+    "category": "Rice / Dishes",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Tingkat PeraMakan",
+    "food": "Ayam Buah Keluak",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Peranakan",
+    "category": "Peranakan",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Tingkat PeraMakan",
+    "food": "Nyonya Curry",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Restaurant",
+    "cuisine": "Peranakan",
+    "category": "Curry",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Chicken Rice Stall",
+    "food": "Chicken Rice",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Chicken Rice Stall",
+    "food": "Roasted Chicken Rice",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Ban Mian Stall",
+    "food": "Ban Mian",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Ban Mian Stall",
+    "food": "You Mian",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Fish Soup Stall",
+    "food": "Fish Soup",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Fish Soup Stall",
+    "food": "Fried Fish Soup",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Soup",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup / Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Dry",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Malay Food Stall",
+    "food": "Nasi Lemak",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Malay Food Stall",
+    "food": "Mee Rebus",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Western Food Stall",
+    "food": "Chicken Chop",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Western Food Stall",
+    "food": "Fish and Chips",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Japanese Stall",
+    "food": "Teriyaki Chicken Don",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Japanese Stall",
+    "food": "Karaage Don",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Dessert Stall",
+    "food": "Ice Kachang",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu @ Thomson Plaza - Dessert Stall",
+    "food": "Chendol",
+    "location": "Swing By @ Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Koufu Coffee, Toast, Dim Sum",
+    "food": "Coffee and Toast",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese / Local",
+    "category": "Breakfast / Drinks",
+    "meal": "Breakfast / Lunch / Tea",
+    "price": "$",
+    "sourceType": "Named food-court outlet"
+  },
+  {
+    "name": "Koufu Coffee, Toast, Dim Sum",
+    "food": "Dim Sum",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese / Local",
+    "category": "Dim Sum",
+    "meal": "Breakfast / Lunch / Tea",
+    "price": "$",
+    "sourceType": "Named food-court outlet"
+  },
+  {
+    "name": "Koufu Coffee, Toast, Dim Sum",
+    "food": "Chee Cheong Fun",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Food Court",
+    "cuisine": "Chinese / Local",
+    "category": "Chee Cheong Fun",
+    "meal": "Breakfast / Lunch / Tea",
+    "price": "$",
+    "sourceType": "Named food-court outlet"
+  },
+  {
+    "name": "A Hot Hideout",
+    "food": "Mala Xiang Guo",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese / Sichuan",
+    "category": "Mala",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "A Hot Hideout",
+    "food": "Sichuan Rice Bowl",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese / Sichuan",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "A Hot Hideout",
+    "food": "Spicy Noodles",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese / Sichuan",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Omoté: Special Edition",
+    "food": "Chirashi Don",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl / Sushi",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Omoté: Special Edition",
+    "food": "Sushi Roll",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Sushi",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Omoté: Special Edition",
+    "food": "Japanese Don",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Wen",
+    "food": "Chinese Noodles",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Noodles",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Wen",
+    "food": "Mini Hotpot",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Hotpot",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Chef Wen",
+    "food": "Steamed Specialities",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Chinese",
+    "category": "Dim Sum",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Merle & Co",
+    "food": "Brunch Plate",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Cafe / Brunch",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Merle & Co",
+    "food": "Coffee",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Drinks",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Merle & Co",
+    "food": "Cake",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Cafe",
+    "cuisine": "Western / Cafe",
+    "category": "Dessert / Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ssada Gimbap",
+    "food": "Gimbap",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Korean",
+    "category": "Rice / Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ssada Gimbap",
+    "food": "Tteokbokki",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Korean",
+    "category": "Korean Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Ssada Gimbap",
+    "food": "Korean Rice Bowl",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Korean",
+    "category": "Rice",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yuen Kee Dumpling",
+    "food": "Dumplings",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Dumplings",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yuen Kee Dumpling",
+    "food": "Noodles",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Dumplings / Noodles",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Yuen Kee Dumpling",
+    "food": "Dumpling Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nolita",
+    "food": "Pizza",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Italian / Western",
+    "category": "Pasta / Pizza",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nolita",
+    "food": "Pasta",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Italian / Western",
+    "category": "Pasta",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Nolita",
+    "food": "Italian Mains",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Italian / Western",
+    "category": "Western",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bunny’s",
+    "food": "Tokyo-style Burger",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bunny’s",
+    "food": "Fries",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Snack",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Bunny’s",
+    "food": "Milkshake",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Japanese / Western",
+    "category": "Drinks",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xin Yuan Ji Fish Soup",
+    "food": "Fish Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xin Yuan Ji Fish Soup",
+    "food": "Fish Bee Hoon",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Soup / Noodles",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Xin Yuan Ji Fish Soup",
+    "food": "Fried Fish Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Casual",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Daily",
+    "food": "Pizza",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Western / Fusion",
+    "category": "Pasta / Pizza",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Daily",
+    "food": "Steak",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Western / Fusion",
+    "category": "Steak / Western",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Daily",
+    "food": "Fusion Rice Bowl",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Restaurant",
+    "cuisine": "Western / Fusion",
+    "category": "Rice Bowl",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Burger",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "McSpicy",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Breakfast Muffin",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Breakfast",
+    "meal": "Breakfast / Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Lentor Modern Food Court - Chicken Rice Stall",
+    "food": "Chicken Rice",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Chicken Rice Stall",
+    "food": "Roasted Chicken Rice",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Ban Mian Stall",
+    "food": "Ban Mian",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Ban Mian Stall",
+    "food": "You Mian",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Noodles / Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Fish Soup Stall",
+    "food": "Fish Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Fish Soup Stall",
+    "food": "Fried Fish Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Soup",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Soup / Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Yong Tau Foo Stall",
+    "food": "Yong Tau Foo Dry",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Chinese",
+    "category": "Healthy",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Malay Food Stall",
+    "food": "Nasi Lemak",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Malay Food Stall",
+    "food": "Mee Rebus",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Malay",
+    "category": "Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Western Food Stall",
+    "food": "Chicken Chop",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Western Food Stall",
+    "food": "Fish and Chips",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Japanese Stall",
+    "food": "Teriyaki Chicken Don",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Japanese Stall",
+    "food": "Karaage Don",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Japanese",
+    "category": "Rice Bowl",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Dessert Stall",
+    "food": "Ice Kachang",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Lentor Modern Food Court - Dessert Stall",
+    "food": "Chendol",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Food Court",
+    "cuisine": "Dessert",
+    "category": "Dessert",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Food court stall category"
+  },
+  {
+    "name": "Khao Hom by Rung Mama",
+    "food": "Thai Basil Pork Rice",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Restaurant",
+    "cuisine": "Thai",
+    "category": "Rice",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Khao Hom by Rung Mama",
+    "food": "Tom Yum Soup",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Restaurant",
+    "cuisine": "Thai",
+    "category": "Soup / Noodles",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Banh Mi Saigon",
+    "food": "Banh Mi",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Vietnamese",
+    "category": "Bread / Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Banh Mi Saigon",
+    "food": "Vietnamese Coffee",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Vietnamese",
+    "category": "Drinks",
+    "meal": "Breakfast / Tea",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Takagi Ramen",
+    "food": "Ramen",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Noodles / Ramen",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Takagi Ramen",
+    "food": "Gyoza",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Fast Casual",
+    "cuisine": "Japanese",
+    "category": "Dumplings",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Lazy Lizard Flora Vista",
+    "food": "Western Mains",
+    "location": "Flora Vista / AMK Fringe",
+    "area": "AMK Neighbourhood",
+    "type": "Cafe / Restaurant",
+    "cuisine": "Western",
+    "category": "Western",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "57° Mala Xiang Guo",
+    "food": "Mala Xiang Guo",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "Mala",
+    "meal": "Lunch / Dinner",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Fu BBQ Seafood",
+    "food": "BBQ Seafood",
+    "location": "AMK Neighbourhood",
+    "area": "AMK Neighbourhood",
+    "type": "Coffeeshop",
+    "cuisine": "Chinese",
+    "category": "BBQ / Seafood",
+    "meal": "Dinner / Supper",
+    "price": "$$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Burger",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Fries",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Fried Chicken",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Zinger Burger",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Whopper",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Chicken Burger",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Sandwich",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Wrap",
+    "location": "AMK Central",
+    "area": "AMK Central",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Burger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Fries",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Fried Chicken",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Whopper",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Chicken Burger",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Sandwich",
+    "location": "AMK Hub",
+    "area": "AMK Hub",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Burger",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Fries",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Fried Chicken",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Zinger Burger",
+    "location": "Thomson Plaza",
+    "area": "Thomson Plaza",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Fries",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Fried Chicken",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Zinger Burger",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Whopper",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Chicken Burger",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Sandwich",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Wrap",
+    "location": "Lentor Modern",
+    "area": "Lentor",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Burger",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "McDonald’s",
+    "food": "Fries",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Snack",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Fried Chicken",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Fried Chicken / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "KFC",
+    "food": "Zinger Burger",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Whopper",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Burger King",
+    "food": "Chicken Burger",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Burger / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Sandwich",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  },
+  {
+    "name": "Subway",
+    "food": "Wrap",
+    "location": "Yio Chu Kang Road",
+    "area": "Yio Chu Kang",
+    "type": "Fast Food",
+    "cuisine": "Western",
+    "category": "Sandwich / Fast Food",
+    "meal": "Lunch / Dinner",
+    "price": "$",
+    "sourceType": "Named outlet"
+  }
+];
 
-      {name:'Teochew Fish Soup / Fish Porridge', stall:'Teochew Fish Porridge Da Pai Dang', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Soup / Porridge', price:'$$'},
-      {name:'Rojak', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Local', category:'Snack', price:'$'},
-      {name:'Chicken Rice', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Rice', price:'$'},
-      {name:'Cai Fan / Economy Rice', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Rice', price:'$'},
-      {name:'Muslim Food', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Malay / Indian Muslim', category:'Rice / Noodles', price:'$'},
-      {name:'Western Chicken Chop', stall:'Chops & Sear', location:'Block 631 Coffeeshop', cuisine:'Western', category:'Western', price:'$$'},
-      {name:'Zi Char', stall:'Reported stall at Broadway Coffeeshop', location:'Block 631 Coffeeshop', cuisine:'Chinese', category:'Zi Char', price:'$$'},
+const filterConfig = [
+  {key:'area', title:'Area'},
+  {key:'type', title:'Dining Type'},
+  {key:'cuisine', title:'Cuisine'},
+  {key:'category', title:'Food Category'},
+  {key:'meal', title:'Meal Time'},
+  {key:'price', title:'Price'},
+  {key:'sourceType', title:'Name Type'}
+];
 
-      {name:'Roasted Meat Rice', stall:'Ho Bee Roasted Food', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Rice', price:'$'},
-      {name:'Hainanese Boneless Chicken Rice', stall:'Sing Soon Lee', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Rice', price:'$'},
-      {name:'Fishball Minced Meat Noodles', stall:'Song Heng', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Noodles', price:'$'},
-      {name:'Porridge', stall:'Xiang Ji Porridge', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Porridge', price:'$'},
-      {name:'Fried Hokkien Prawn Mee', stall:'Sumo Fried Hokkien Prawn Mee', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Noodles', price:'$'},
-      {name:'Nasi Lemak', stall:'Nasi Lemak@67', location:'Block 628 Hawker Centre', cuisine:'Malay', category:'Rice', price:'$'},
-      {name:'Fish Soup', stall:'Imperial Fish Soup', location:'Block 628 Hawker Centre', cuisine:'Chinese', category:'Soup', price:'$'},
-      {name:'Vegetarian Bee Hoon / Rice', stall:'Foy Yin Vegetarian Food', location:'Block 628 Hawker Centre', cuisine:'Vegetarian', category:'Vegetarian', price:'$'},
-      {name:'Malay Family Dishes', stall:'Rosnah’s Family Kitchen', location:'Block 628 Hawker Centre', cuisine:'Malay', category:'Rice / Dishes', price:'$'},
-      {name:'Japanese Rice Bowl', stall:'Konomi Zen', location:'Block 628 Hawker Centre', cuisine:'Japanese', category:'Rice Bowl', price:'$$'},
+const selected = {};
+filterConfig.forEach(f => selected[f.key] = 'All');
 
-      {name:'Japanese Chirashi / Don', stall:'Omoté', location:'Thomson Plaza', cuisine:'Japanese', category:'Rice Bowl', price:'$$$'},
-      {name:'Korean Meals', stall:'Wonderful Bapsang', location:'Thomson Plaza', cuisine:'Korean', category:'Rice / Noodles', price:'$$'},
-      {name:'Japanese Donburi', stall:'Hokkaido-ya', location:'Thomson Plaza', cuisine:'Japanese', category:'Rice Bowl', price:'$$'},
-      {name:'Hong Kong Cafe Food', stall:'Nan Yang Dao', location:'Thomson Plaza', cuisine:'Hong Kong / Malaysian', category:'Cafe / Noodles / Rice', price:'$$'},
-      {name:'Ayam Penyet', stall:'BISTRO BOX By Uncle Penyet', location:'Thomson Plaza', cuisine:'Indonesian', category:'Rice', price:'$$'},
-      {name:'Chinese Restaurant Dishes', stall:'Peach Garden', location:'Thomson Plaza', cuisine:'Chinese', category:'Restaurant', price:'$$$'},
-      {name:'Hotpot', stall:'Shi Li Fang', location:'Thomson Plaza', cuisine:'Chinese', category:'Hotpot', price:'$$$'},
-      {name:'Pasta', stall:'42 Pasta is the Answer', location:'Thomson Plaza', cuisine:'Western / Italian', category:'Pasta', price:'$$'},
-      {name:'Tonkatsu / Ramen', stall:'Hajime Tonkatsu & Ramen', location:'Thomson Plaza', cuisine:'Japanese', category:'Noodles / Cutlet', price:'$$'},
-      {name:'Japanese Collagen Hotpot', stall:'Tsukada Nojo', location:'Thomson Plaza', cuisine:'Japanese', category:'Hotpot', price:'$$$'},
-      {name:'Vegan Meals', stall:'iVegan', location:'Thomson Plaza', cuisine:'Vegetarian', category:'Vegetarian', price:'$$'},
-      {name:'Sushi', stall:'Sushiro', location:'Thomson Plaza', cuisine:'Japanese', category:'Sushi', price:'$$'},
-      {name:'Fujian / Chinese Food', stall:'San Ren Xing', location:'Thomson Plaza', cuisine:'Chinese', category:'Restaurant', price:'$$'},
-      {name:'Western Cafe Meals', stall:'The Grumpy Bear', location:'Thomson Plaza', cuisine:'Western', category:'Cafe / Western', price:'$$'},
-      {name:'Cafe / Bar Bites', stall:'Shift Bar & Kitchen by CommonFolks', location:'Thomson Plaza', cuisine:'Western / Cafe', category:'Cafe / Snack', price:'$$'},
-      {name:'Steak / Western Grill', stall:'Astons Specialities', location:'Thomson Plaza', cuisine:'Western', category:'Western', price:'$$'},
-      {name:'Burger', stall:'Burger King', location:'Thomson Plaza', cuisine:'Western', category:'Fast Food', price:'$'},
-      {name:'Kueh / Cakes', stall:'Bengawan Solo', location:'Thomson Plaza', cuisine:'Dessert', category:'Dessert / Snack', price:'$'},
+let favOnly = false;
+let voteMode = false;
+let favourites = JSON.parse(localStorage.getItem('amkFoodFavouritesRealNames') || '[]');
 
-      {name:'A-One Claypot / Porridge', stall:'A-One Signature', location:'AMK Hub', cuisine:'Chinese', category:'Porridge / Claypot', price:'$$'},
-      {name:'Root Beer Float / Burgers', stall:'A&W', location:'AMK Hub', cuisine:'Western', category:'Fast Food', price:'$'},
-      {name:'Ramen', stall:'Ajisen Tanjiro', location:'AMK Hub', cuisine:'Japanese', category:'Noodles', price:'$$'},
-      {name:'Pretzels', stall:'Auntie Anne’s', location:'AMK Hub', cuisine:'Snack', category:'Dessert / Snack', price:'$'},
-      {name:'Chinese BBQ Skewers', stall:'BBQ Box', location:'AMK Hub', cuisine:'Chinese', category:'Grill / Skewers', price:'$$'},
-      {name:'Cookies', stall:'Famous Amos', location:'AMK Hub', cuisine:'Dessert', category:'Dessert / Snack', price:'$'},
-      {name:'Bakkwa', stall:'Fragrance Bakkwa', location:'AMK Hub', cuisine:'Chinese', category:'Snack', price:'$$'},
-      {name:'Indian Meals', stall:'LADYFINGER', location:'AMK Hub', cuisine:'Indian', category:'Rice / Dishes', price:'$$'},
-      {name:'Hunan Dishes', stall:'Xiang Xiang Hunan Cuisine', location:'AMK Hub', cuisine:'Chinese', category:'Restaurant', price:'$$'},
-      {name:'Kopi and Toast', stall:'Kopi & Tarts', location:'AMK Hub', cuisine:'Local', category:'Breakfast / Snack', price:'$'},
-      {name:'Potato Snacks', stall:'Potato Corner', location:'AMK Hub', cuisine:'Snack', category:'Snack', price:'$'},
-      {name:'Burger', stall:'MOS Burger', location:'AMK Hub', cuisine:'Japanese / Western', category:'Fast Food', price:'$'},
-      {name:'Soy Milk / Pancake', stall:'Mr Bean', location:'AMK Hub', cuisine:'Local', category:'Drinks / Snack', price:'$'},
-      {name:'Bak Kut Teh', stall:'New Manlee Bak Kut Teh', location:'AMK Hub', cuisine:'Chinese', category:'Soup / Rice', price:'$$'},
-      {name:'Curry Puff', stall:'Old Chang Kee', location:'AMK Hub', cuisine:'Local', category:'Snack', price:'$'},
-      {name:'Sizzling Hot Plate', stall:'Pepper Lunch', location:'AMK Hub', cuisine:'Japanese / Western', category:'Hotplate', price:'$$'},
-      {name:'Prata', stall:'Prata Raya', location:'AMK Hub', cuisine:'Indian Muslim', category:'Prata / Breakfast', price:'$'},
-      {name:'Rice Roll', stall:'QQ Rice', location:'AMK Hub', cuisine:'Taiwanese / Healthy', category:'Rice / Snack', price:'$'},
-      {name:'Western Student Meals', stall:'Eighteen Chefs / Scarlet Café', location:'AMK Hub', cuisine:'Western', category:'Western / Pasta', price:'$$'}
-    ];
+const filtersEl = document.getElementById('filters');
+const gridEl = document.getElementById('grid');
+const emptyEl = document.getElementById('empty');
+const statsEl = document.getElementById('stats');
+const searchEl = document.getElementById('search');
 
-    const filterConfig = [
-      {key:'location', title:'Location'},
-      {key:'cuisine', title:'Cuisine'},
-      {key:'price', title:'Price'},
-      {key:'category', title:'Category'}
-    ];
+function itemId(item) {
+  return [item.name,item.food,item.location].join('|');
+}
 
-    const selected = { location:'All', cuisine:'All', price:'All', category:'All' };
-    const filtersEl = document.getElementById('filters');
-    const gridEl = document.getElementById('grid');
-    const emptyEl = document.getElementById('empty');
-    const statsEl = document.getElementById('stats');
-    const searchEl = document.getElementById('search');
+function uniqueValues(key) {
+  if (key === 'price') return ['$', '$$', '$$$'];
+  return [...new Set(foodData.map(x => x[key]))].sort((a,b)=>a.localeCompare(b));
+}
 
-    function uniq(key) {
-      const values = [...new Set(foodData.map(x => x[key]))].sort((a,b) => a.localeCompare(b));
-      if (key === 'price') return ['$', '$$', '$$$'];
-      return values;
-    }
+function drawFilters() {
+  filtersEl.innerHTML = filterConfig.map(cfg => `
+    <div class="filter-group">
+      <div class="filter-title">${cfg.title}</div>
+      <div class="buttons" data-key="${cfg.key}">
+        <button class="active" data-value="All">All</button>
+        ${uniqueValues(cfg.key).map(v => `<button data-value="${v}">${v}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
 
-    function drawFilters() {
-      filtersEl.innerHTML = filterConfig.map(cfg => `
-        <div class="filter-group">
-          <div class="filter-title">${cfg.title}</div>
-          <div class="buttons" data-key="${cfg.key}">
-            <button class="active" data-value="All">All</button>
-            ${uniq(cfg.key).map(v => `<button data-value="${v}">${v}</button>`).join('')}
-          </div>
-        </div>
-      `).join('');
-
-      filtersEl.addEventListener('click', e => {
-        if (!e.target.matches('button')) return;
-        const group = e.target.closest('.buttons');
-        const key = group.dataset.key;
-        selected[key] = e.target.dataset.value;
-        group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn === e.target));
-        render();
-      });
-    }
-
-    function getFiltered() {
-      const q = searchEl.value.trim().toLowerCase();
-      return foodData.filter(item => {
-        const filterOk = Object.entries(selected).every(([key, val]) => val === 'All' || item[key] === val);
-        const searchOk = !q || Object.values(item).join(' ').toLowerCase().includes(q);
-        return filterOk && searchOk;
-      });
-    }
-
-    function render() {
-      const list = getFiltered();
-      statsEl.textContent = `${list.length} choice${list.length === 1 ? '' : 's'}`;
-      emptyEl.style.display = list.length ? 'none' : 'block';
-      gridEl.innerHTML = list.map(item => `
-        <article class="card">
-          <div class="food">${item.name}</div>
-          <div class="stall">${item.stall}</div>
-          <div class="tags">
-            <span class="tag blue">${item.location}</span>
-            <span class="tag">${item.cuisine}</span>
-            <span class="tag green">${item.price}</span>
-            <span class="tag gray">${item.category}</span>
-          </div>
-        </article>
-      `).join('');
-    }
-
-    document.getElementById('resetBtn').addEventListener('click', () => {
-      Object.keys(selected).forEach(k => selected[k] = 'All');
-      searchEl.value = '';
-      document.querySelectorAll('.buttons').forEach(group => {
-        group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn.dataset.value === 'All'));
-      });
-      render();
-    });
-
-    document.getElementById('randomBtn').addEventListener('click', () => {
-      const list = getFiltered();
-      if (!list.length) return;
-      const pick = list[Math.floor(Math.random() * list.length)];
-      gridEl.innerHTML = `
-        <article class="card" style="grid-column:1/-1; border:2px solid #f97316;">
-          <div class="food">Tonight’s pick: ${pick.name}</div>
-          <div class="stall">${pick.stall}</div>
-          <div class="tags">
-            <span class="tag blue">${pick.location}</span>
-            <span class="tag">${pick.cuisine}</span>
-            <span class="tag green">${pick.price}</span>
-            <span class="tag gray">${pick.category}</span>
-          </div>
-        </article>` + gridEl.innerHTML;
-    });
-
-    searchEl.addEventListener('input', render);
-    drawFilters();
+  filtersEl.addEventListener('click', e => {
+    if (!e.target.matches('button')) return;
+    const group = e.target.closest('.buttons');
+    const key = group.dataset.key;
+    selected[key] = e.target.dataset.value;
+    group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn === e.target));
     render();
-  </script>
+  });
+}
+
+function getFiltered() {
+  const q = searchEl.value.trim().toLowerCase();
+  return foodData.filter(item => {
+    const filterOk = Object.entries(selected).every(([key,val]) => val === 'All' || item[key] === val);
+    const searchOk = !q || Object.values(item).join(' ').toLowerCase().includes(q);
+    const favOk = !favOnly || favourites.includes(itemId(item));
+    return filterOk && searchOk && favOk;
+  });
+}
+
+function esc(s) {
+  return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
+}
+
+function card(item, extraClass='') {
+  const id = itemId(item);
+  const isFav = favourites.includes(id);
+  const safeId = esc(id);
+  const vote = voteMode ? `<button class="favbtn" onclick="alert('Vote recorded for: ${esc(item.food)} at ${esc(item.name)}')">Vote 👍</button>` : '';
+  return `
+    <article class="card ${extraClass}">
+      <div class="name">${esc(item.name)}</div>
+      <div class="food">${esc(item.food)}</div>
+      <div class="stall">${esc(item.location)}</div>
+      <div class="tags">
+        <span class="tag blue">${esc(item.area)}</span>
+        <span class="tag purple">${esc(item.type)}</span>
+        <span class="tag">${esc(item.cuisine)}</span>
+        <span class="tag gray">${esc(item.category)}</span>
+        <span class="tag">${esc(item.meal)}</span>
+        <span class="tag green">${esc(item.price)}</span>
+        <span class="tag yellow">${esc(item.sourceType)}</span>
+      </div>
+      <button class="favbtn ${isFav ? 'on' : ''}" onclick="toggleFav('${safeId}')">${isFav ? '❤️ Favourite' : '♡ Add Favourite'}</button>
+      ${vote}
+    </article>
+  `;
+}
+
+function render() {
+  const list = getFiltered();
+  statsEl.textContent = `${list.length} choices`;
+  emptyEl.style.display = list.length ? 'none' : 'block';
+  gridEl.innerHTML = list.map(x => card(x)).join('');
+}
+
+function toggleFav(id) {
+  const decoded = id.replaceAll('&amp;','&').replaceAll('&lt;','<').replaceAll('&gt;','>').replaceAll('&quot;','"').replaceAll('&#039;',"'");
+  if (favourites.includes(decoded)) favourites = favourites.filter(x => x !== decoded);
+  else favourites.push(decoded);
+  localStorage.setItem('amkFoodFavouritesRealNames', JSON.stringify(favourites));
+  render();
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  Object.keys(selected).forEach(k => selected[k] = 'All');
+  searchEl.value = '';
+  favOnly = false;
+  voteMode = false;
+  document.getElementById('favOnlyBtn').classList.remove('active');
+  document.getElementById('voteBtn').classList.remove('active');
+  document.querySelectorAll('.buttons').forEach(group => {
+    group.querySelectorAll('button').forEach(btn => btn.classList.toggle('active', btn.dataset.value === 'All'));
+  });
+  render();
+});
+
+document.getElementById('randomBtn').addEventListener('click', () => {
+  const list = getFiltered();
+  if (!list.length) return;
+  const pick = list[Math.floor(Math.random() * list.length)];
+  gridEl.innerHTML = card({...pick, food:'Tonight’s Pick: ' + pick.food}, 'pick') + list.map(x => card(x)).join('');
+});
+
+document.getElementById('favOnlyBtn').addEventListener('click', e => {
+  favOnly = !favOnly;
+  e.target.classList.toggle('active', favOnly);
+  render();
+});
+
+document.getElementById('voteBtn').addEventListener('click', e => {
+  voteMode = !voteMode;
+  e.target.classList.toggle('active', voteMode);
+  render();
+});
+
+searchEl.addEventListener('input', render);
+drawFilters();
+render();
+</script>
 </body>
 </html>
